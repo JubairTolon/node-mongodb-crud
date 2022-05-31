@@ -40,7 +40,12 @@ LOAD data to the client site
 3. collection.find(quey)
 4. cursor.toArray()
 5. return the result
+6. from clint useEffect ans display like you done before
+------------------------------
 
+DELETE data
+-----------------------------
+1.
 */
 
 

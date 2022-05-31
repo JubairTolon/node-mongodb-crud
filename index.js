@@ -3,6 +3,7 @@ const app = express();
 const cors = require('cors');
 const port = process.env.PORT || 5000;
 const { MongoClient, ServerApiVersion } = require('mongodb');
+const ObjectId = require('mongodb').ObjectId;
 const { query } = require('express');
 
 //use middleware
@@ -22,12 +23,45 @@ async function run() {
         await client.connect();
         const userCollection = client.db("foodExpress").collection("user");
 
-        //get user : finding multiple users
+        //get users : finding multiple users and sent to client server
         app.get('/user', async (req, res) => {
             const query = {};
             const cursor = userCollection.find(query);
             const users = await cursor.toArray();
             res.send(users);
+        })
+
+        //get users : finding single user and sent to client server
+        app.get('/user/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await userCollection.findOne(query);
+            res.send(result);
+        })
+        //update user
+        app.put('/user/:id', async (req, res) => {
+            const id = req.params.id;
+            const updatedUser = req.body;
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    name: updatedUser.name,
+                    email: updatedUser.email
+                },
+            };
+            const result = await userCollection.updateOne(filter, updateDoc, options);
+            res.send(result);
+        })
+
+
+
+        //DELETE a user
+        app.delete('/user/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) }
+            const result = await userCollection.deleteOne(query);
+            res.send(result);
         })
 
         //manually data insert to DB
